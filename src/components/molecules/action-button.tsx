@@ -2,7 +2,6 @@ import React from "react";
 import {
 	Tooltip,
 	TooltipContent,
-	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -10,6 +9,14 @@ import { cn } from "@/lib/utils";
 
 type TooltipSide = "top" | "right" | "bottom" | "left";
 type TooltipAlign = "start" | "center" | "end";
+type ButtonSize = "default" | "sm" | "lg" | "icon";
+type ButtonVariant =
+	| "default"
+	| "outline"
+	| "ghost"
+	| "link"
+	| "destructive"
+	| "secondary";
 
 interface ActionButtonProps extends ButtonProps {
 	icon: React.ElementType;
@@ -18,6 +25,8 @@ interface ActionButtonProps extends ButtonProps {
 	tooltipSide?: TooltipSide;
 	tooltipAlign?: TooltipAlign;
 	iconClassName?: string;
+	size?: ButtonSize;
+	variant?: ButtonVariant;
 }
 
 /**
@@ -32,7 +41,7 @@ interface ActionButtonProps extends ButtonProps {
  * - **Icon Integration**: Easily include any icon component within the button.
  * - **Accessibility**: The `label` prop ensures that screen readers can describe the button's purpose.
  * - **Customizable Tooltips**: Optionally provide custom tooltip content, position, and alignment.
- * - **Flexible Styling**: Pass additional class names to both the button and icon for styling.
+ * - **Flexible Styling**: Customize size and variant using Shadcn's built-in options.
  *
  * ### Usage Examples:
  *
@@ -44,6 +53,7 @@ interface ActionButtonProps extends ButtonProps {
  *   icon={PlusIcon}
  *   label="Add Item"
  *   onClick={() => handleAddItem()}
+ *   size="default"
  *   variant="outline"
  * />
  *
@@ -55,12 +65,15 @@ interface ActionButtonProps extends ButtonProps {
  *   tooltipSide="right"
  *   tooltipAlign="start"
  *   onClick={() => handleDeleteItem()}
+ *   size="sm"
+ *   variant="destructive"
  * />
  *
- * // Custom icon styling
+ * // Icon button with custom styling
  * <ActionButton
  *   icon={SettingsIcon}
  *   label="Settings"
+ *   size="icon"
  *   iconClassName="text-blue-500"
  *   onClick={() => openSettings()}
  * />
@@ -75,6 +88,8 @@ interface ActionButtonProps extends ButtonProps {
  * @param {TooltipAlign} [props.tooltipAlign="center"] - The alignment of the tooltip relative to the side.
  * @param {string} [props.iconClassName] - Additional class names for the icon component.
  * @param {string} [props.className] - Additional class names for the button component.
+ * @param {ButtonSize} [props.size="default"] - The size of the button.
+ * @param {ButtonVariant} [props.variant="default"] - The variant of the button.
  * @param {ButtonProps} [props.buttonProps] - All other props are passed down to the underlying Button component.
  *
  * @returns {JSX.Element} The rendered ActionButton component.
@@ -88,28 +103,40 @@ export const ActionButton = React.memo((props: ActionButtonProps) => {
 		tooltipAlign = "center",
 		iconClassName,
 		className,
+		size = "default",
+		variant = "default",
 		...buttonProps
 	} = props;
 
+	const iconSizeClasses: Record<typeof size, string> = {
+		default: "h-4 w-4",
+		sm: "h-3 w-3",
+		lg: "h-6 w-6",
+		icon: "h-4 w-4",
+	};
+
 	return (
 		<div>
-			<TooltipProvider>
-				<Tooltip>
-					<TooltipTrigger asChild>
-						<Button
-							className={cn("relative", className)}
-							{...buttonProps}
-							aria-label={label}
-						>
-							<Icon className={cn("h-4 w-4", iconClassName)} />
-							<span className="sr-only">{label}</span>
-						</Button>
-					</TooltipTrigger>
-					<TooltipContent side={tooltipSide} align={tooltipAlign}>
-						{tooltipContent || <p>{label}</p>}
-					</TooltipContent>
-				</Tooltip>
-			</TooltipProvider>
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button
+						className={cn("relative", className)}
+						size={size}
+						variant={variant}
+						{...buttonProps}
+						aria-label={label}
+					>
+						<Icon
+							className={cn(iconSizeClasses[size], iconClassName)}
+							aria-hidden="true"
+						/>
+						<span className="sr-only">{label}</span>
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent side={tooltipSide} align={tooltipAlign}>
+					{tooltipContent || <p>{label}</p>}
+				</TooltipContent>
+			</Tooltip>
 		</div>
 	);
 });
