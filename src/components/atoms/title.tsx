@@ -15,22 +15,12 @@ interface TitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
  * heading levels (`<h1>` to `<h6>`). The component applies default font
  * styles and sizes based on the heading level, ensuring consistent typography.
  *
- * This component allows you to control both the semantic HTML tag (for
- * accessibility and SEO) and the visual appearance via props, making it
- * a versatile option for titles across the application.
  *
- * ### Usage:
+ * ___Usage:___
  * - Use the `as` prop to specify the heading level (`h1-h6`).
  * - You can pass children (text or elements) to define the content.
  * - Customize the appearance further by adding class names with the `className` prop.
  * - Optionally, add `id` for in-page linking or ARIA attributes for enhanced accessibility.
- *
- * @component
- * @param {TitleProps} props - Props for configuring the Title component.
- * @param {HeadingLevel} [props.as="h1"] - The heading level (h1-h6) to render.
- * @param {React.ReactNode} props.children - The content to display within the heading.
- * @param {string} [props.className] - Additional CSS classes to apply for customization.
- * @param {string} [props.ariaLabel] - Accessible label for the heading.
  *
  * @example
  * ```jsx
@@ -45,11 +35,18 @@ interface TitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
  *
  * // Interactive heading with keyboard navigation
  * <Title as="h2" onClick={handleClick} className="cursor-pointer">
- * 	Clickable Section Title
+ *    Clickable Section Title
  * </Title>
  * ```
  *
- * @returns {JSX.Element} The rendered heading element.
+ * @component
+ * @param {TitleProps} props - Props for configuring the Title component.
+ * @param {HeadingLevel} [props.as="h1"] - The heading level (h1-h6) to render.
+ * @param {React.ReactNode} props.children - The content to display within the heading.
+ * @param {string} [props.className] - Additional CSS classes to apply for customization.
+ * @param {string} [props.ariaLabel] - Accessible label for the heading.
+ *
+ * @returns {React.ReactElement} The memoized Title component.
  */
 export const Title = React.memo(
 	({
@@ -60,7 +57,7 @@ export const Title = React.memo(
 		onClick,
 		ariaLabel,
 		...props
-	}: TitleProps) => {
+	}: TitleProps): React.ReactElement => {
 		const HeadingTag = as;
 
 		const sizeClasses: Record<HeadingLevel, string> = {
