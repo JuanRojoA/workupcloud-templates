@@ -1,7 +1,7 @@
 import type React from "react";
 import { useState, useId } from "react";
-import { cn } from "@/lib/utils";
-import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils.ts";
+import { Textarea } from "@/components/ui/textarea.tsx";
 import { useFormContext } from "react-hook-form";
 import type { FieldError } from "react-hook-form";
 

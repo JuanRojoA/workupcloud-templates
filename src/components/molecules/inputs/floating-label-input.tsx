@@ -1,6 +1,6 @@
 import React, { useState, useId } from "react";
-import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils.ts";
+import { Input } from "@/components/ui/input.tsx";
 import { useFormContext } from "react-hook-form";
 import type { FieldError } from "react-hook-form";
 

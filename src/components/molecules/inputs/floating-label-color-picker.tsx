@@ -1,16 +1,16 @@
 import type React from "react";
 import { useState, useId, useMemo } from "react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils.ts";
+import { Button } from "@/components/ui/button.tsx";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/components/ui/popover.tsx";
 import { useFormContext } from "react-hook-form";
 import type { FieldError } from "react-hook-form";
 import { HexColorInput, HexColorPicker } from "react-colorful";
-import { Trash2Icon, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 
 /**
  * Props for the FloatingLabelColorPicker component.

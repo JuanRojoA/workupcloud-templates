@@ -1,15 +1,15 @@
 import type React from "react";
 import { useState, useId } from "react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils.ts";
+import { Button } from "@/components/ui/button.tsx";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar.tsx";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/components/ui/popover.tsx";
 import { useFormContext } from "react-hook-form";
 import type { FieldError } from "react-hook-form";
 import type { DateRange } from "react-day-picker";
