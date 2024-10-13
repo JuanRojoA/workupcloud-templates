@@ -1,117 +1,263 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetFooter,
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetFooter,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { type FilterConfig, useFilters } from "@/hooks/useFilters";
+import { useFilters } from "@/hooks/useFilters";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+	FloatingLabelInput,
+	type InputType,
+} from "@/components/molecules/inputs/floating-label-input";
+import { FloatingLabelSelect } from "@/components/molecules/inputs/floating-label-select";
+import { FloatingLabelDatePicker } from "@/components/molecules/inputs/floating-label-date-picker";
+import { FloatingLabelColorPicker } from "@/components/molecules/inputs/floating-label-color-picker";
+import { FloatingLabelTextarea } from "@/components/molecules/inputs/floating-label-textarea";
+import { CheckboxInput } from "@/components/molecules/inputs/checkbox-input";
+import { RadioButtonInput } from "@/components/molecules/inputs/radio-button-input";
+import type { z } from "zod";
 
-interface FiltersSheetProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onApply: (filters: Record<string, string | string[]>) => void;
-    onClear: () => void;
-    filters: FilterConfig[];
-    title?: string;
-    description?: string;
-    className?: string;
+export interface FilterOption {
+	label: string;
+	value: string;
+}
+
+export type FilterType =
+	| "input"
+	| "select"
+	| "textarea"
+	| "date"
+	| "color"
+	| "checkbox"
+	| "radio";
+
+export interface FilterConfigItem {
+	type: FilterType;
+	name: string;
+	label: string;
+	placeholder?: string;
+	options?: FilterOption[]; // For select and radio inputs
+	isHidden?: boolean; // For hidden filters
+	defaultValue?: string | string[] | number | boolean; // For select and radio inputs
+	inputType?: InputType; // For input fields
+	multiple?: boolean; // For selects that allow multiple selections
 }
 
 /**
- * A sheet component for displaying and managing advanced filters.
+ * Props for the FiltersSheet component.
+ */
+interface FiltersSheetProps {
+	isOpen: boolean;
+	onClose: () => void;
+	onApply: (data: Record<string, unknown>) => void;
+	onClear: () => void;
+	filterConfig: FilterConfigItem[];
+	filtersSchema: z.ZodSchema<Record<string, unknown>>;
+	filtersStoredAs?: string;
+}
+
+/**
+ * A sheet component that displays filter options based on a configuration.
  *
- * This component provides a user-friendly interface for users to interact with various filter options,
- * including input fields, select dropdowns, and checkboxes. It allows users to refine their search results
- * by applying multiple filters.
- *
- * @example
- * ```jsx
- * <FiltersSheet
- *   isOpen={isFiltersSheetOpen}
- *   onClose={() => setIsFiltersSheetOpen(false)}
- *   onApply={handleApplyFilters}
- *   onClear={handleClearFilters}
- *   filters={[
- *     {
- *       id: 'name',
- *       label: 'Name',
- *       type: 'input',
- *       placeholder: 'Filter by name'
- *     },
- *     {
- *       id: 'type',
- *       label: 'Type',
- *       type: 'select',
- *       options: [
- *         { label: 'Email', value: 'EMAIL' },
- *         { label: 'SMS', value: 'SMS' },
- *         { label: 'Document', value: 'DOCUMENT' }
- *       ]
- *     },
- *     {
- *       id: 'status',
- *       label: 'Status',
- *       type: 'checkbox',
- *       options: [
- *         { label: 'Active', value: 'active' },
- *         { label: 'Inactive', value: 'inactive' },
- *         { label: 'Pending', value: 'pending' }
- *       ]
- *     }
- *   ]}
- * />
- * ```
+ * The `FiltersSheet` component renders a set of inputs based on the provided
+ * filter configuration. It integrates with `useFilters` hook to manage filter state,
+ * and uses `react-hook-form` and `zod` for form state management and validation.
  *
  * @component
+ *
  * @param {FiltersSheetProps} props - The component props.
  * @returns {JSX.Element} - The rendered FiltersSheet component.
  */
 export const FiltersSheet: React.FC<FiltersSheetProps> = React.memo(
-    ({
-        isOpen,
-        onClose,
-        onApply,
-        onClear,
-        filters,
-        title = "Advanced Filters",
-        description = "Apply filters to refine your results.",
-        className,
-    }) => {
-        // biome-ignore lint/correctness/noUnusedVariables: <explanation>
-        const { filterValues, handleApply, handleClear, renderFilter } =
-            useFilters(filters, onApply, onClear);
+	({
+		isOpen,
+		onClose,
+		onApply,
+		onClear,
+		filterConfig,
+		filtersSchema,
+		filtersStoredAs,
+	}) => {
+		const { filters, setFilterValue, clearFilters } =
+			useFilters(filtersStoredAs);
 
-        return (
-            <Sheet open={isOpen} onOpenChange={onClose}>
-                <SheetContent
-                    side="right"
-                    className={cn(
-                        "w-[400px] sm:max-w-[25vw] sm:min-w-[270px] flex flex-col h-full p-0",
-                        className,
-                    )}
-                >
-                    <SheetHeader className="flex-shrink-0 p-4 pb-0">
-                        <SheetTitle>{title}</SheetTitle>
-                        <SheetDescription>{description}</SheetDescription>
-                    </SheetHeader>
-                    <div className="flex-grow overflow-y-auto p-4 pt-0">
-                        <div className="grid gap-4 py-4">
-                            {filters.map(renderFilter)}
-                        </div>
-                    </div>
-                    <SheetFooter className="flex-shrink-0 flex justify-end p-2 shadow-[1px_-2px_0_#e5e7eb]">
-                        <Button variant="outline" onClick={handleClear}>
-                            Clear Filters
-                        </Button>
-                        <Button onClick={handleApply}>Apply Filters</Button>
-                    </SheetFooter>
-                </SheetContent>
-            </Sheet>
-        );
-    },
+		const methods = useForm({
+			resolver: zodResolver(filtersSchema),
+			defaultValues: Object.fromEntries(
+				Object.entries(filters).map(([key, filter]) => [key, filter.value]),
+			),
+		});
+
+		const {
+			handleSubmit,
+			reset,
+			formState: { errors },
+		} = methods;
+
+		// Reset form when filters change
+		useEffect(() => {
+			reset(
+				Object.fromEntries(
+					Object.entries(filters).map(([key, filter]) => [key, filter.value]),
+				),
+			);
+		}, [filters, reset]);
+
+		/**
+		 * Handles the form submission.
+		 *
+		 * @param {Record<string, any>} data - The form data.
+		 */
+
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		const onSubmit = (data: Record<string, any>) => {
+			// Update filters in the hook
+			for (const [key, value] of Object.entries(data)) {
+				setFilterValue(key, value);
+			}
+			onApply(data);
+			onClose();
+		};
+
+		/**
+		 * Handles clearing the filters.
+		 */
+		const handleClear = () => {
+			clearFilters();
+			reset({});
+			onClear();
+		};
+
+		return (
+			<Sheet open={isOpen} onOpenChange={onClose}>
+				<SheetContent
+					side="right"
+					className="w-[400px] sm:max-w-[30vw] sm:min-w-[270px] p-0 flex flex-col h-full gap-0"
+				>
+					<SheetHeader className="p-4 py-2 border border-zinc-200">
+						<SheetTitle>Advanced Filters</SheetTitle>
+					</SheetHeader>
+					<FormProvider {...methods}>
+						<form
+							onSubmit={handleSubmit(onSubmit)}
+							className="flex flex-col gap-4 py-4 px-3 max-h-full grow overflow-y-auto w-full"
+						>
+							{filterConfig.map((filterItem) => {
+								if (filterItem.isHidden) return null;
+
+								const fieldError = errors[filterItem.name];
+
+								switch (filterItem.type) {
+									case "input":
+										return (
+											<FloatingLabelInput
+												key={filterItem.name}
+												label={filterItem.label}
+												name={filterItem.name}
+												type={filterItem.inputType || "text"}
+												error={fieldError}
+												wrapperClassName=""
+											/>
+										);
+									case "select":
+										return (
+											<FloatingLabelSelect
+												key={filterItem.name}
+												label={filterItem.label}
+												name={filterItem.name}
+												options={filterItem.options || []}
+												// isMulti={filterItem.multiple || false}
+												error={fieldError}
+												wrapperClassName=""
+											/>
+										);
+									case "date":
+										return (
+											<FloatingLabelDatePicker
+												key={filterItem.name}
+												label={filterItem.label}
+												name={filterItem.name}
+												mode="single"
+												error={fieldError}
+												wrapperClassName=""
+											/>
+										);
+									case "color":
+										return (
+											<FloatingLabelColorPicker
+												key={filterItem.name}
+												label={filterItem.label}
+												name={filterItem.name}
+												error={fieldError}
+												wrapperClassName=""
+											/>
+										);
+									case "textarea":
+										return (
+											<FloatingLabelTextarea
+												key={filterItem.name}
+												label={filterItem.label}
+												name={filterItem.name}
+												error={fieldError}
+												wrapperClassName=""
+											/>
+										);
+									case "checkbox":
+										return (
+											<CheckboxInput
+												key={filterItem.name}
+												label={filterItem.label}
+												name={filterItem.name}
+												options={[{ label: filterItem.label, value: "true" }]}
+												error={fieldError}
+												wrapperClassName=""
+											/>
+										);
+									case "radio":
+										return (
+											<RadioButtonInput
+												key={filterItem.name}
+												label={filterItem.label}
+												name={filterItem.name}
+												options={filterItem.options || []}
+												error={fieldError}
+												wrapperClassName=""
+											/>
+										);
+									default:
+										return null;
+								}
+							})}
+						</form>
+					</FormProvider>
+					<SheetFooter className="flex justify-end p-0 m-0">
+						<div className="w-full flex p-2 gap-2 shadow-[0px_-1px_5px_0px_rgba(0,0,0,0.1)]">
+							<Button
+								type="button"
+								variant="outline"
+								className="grow"
+								onClick={handleClear}
+							>
+								Clear Filters
+							</Button>
+							<Button
+								type="submit"
+								className="grow"
+								onClick={methods.handleSubmit(onSubmit)}
+							>
+								Apply Filters
+							</Button>
+						</div>
+					</SheetFooter>
+				</SheetContent>
+			</Sheet>
+		);
+	},
 );
+
+FiltersSheet.displayName = "FiltersSheet";

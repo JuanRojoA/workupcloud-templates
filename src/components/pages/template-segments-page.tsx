@@ -21,8 +21,8 @@ import type {
     VisibilityState,
 } from "@tanstack/react-table";
 import type { TemplateSegment } from "@/types/index";
-import { FloatingLabelInput } from "../molecules/floating-label-input";
-import { FloatingLabelSelect } from "../molecules/floating-label-select";
+import { FloatingLabelInput } from "../molecules/inputs/floating-label-input.tsx";
+import { FloatingLabelSelect } from "../molecules/inputs/floating-label-select.tsx";
 
 const pageSize = 10;
 const totalPages = 5;

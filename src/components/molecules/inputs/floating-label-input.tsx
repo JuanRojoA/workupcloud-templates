@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input.tsx";
 import { useFormContext } from "react-hook-form";
 import type { FieldError } from "react-hook-form";
 
-type InputType =
+export type InputType =
 	| "text"
 	| "password"
 	| "email"

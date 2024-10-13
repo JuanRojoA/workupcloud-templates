@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { SheetFooter } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { type FormField, useDynamicForm } from "@/hooks/useDynamicForm";
-import { FloatingLabelSelect } from "@/components/molecules/floating-label-select";
-import { FloatingLabelInput } from "@/components/molecules/floating-label-input";
+import { FloatingLabelSelect } from "@/components/molecules/inputs/floating-label-select.tsx";
+import { FloatingLabelInput } from "@/components/molecules/inputs/floating-label-input.tsx";
 
 interface DynamicFormProps {
     fields: FormField[];
