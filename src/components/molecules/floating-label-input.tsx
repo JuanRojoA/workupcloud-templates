@@ -16,40 +16,45 @@ type InputType =
  * Props for the FloatingLabelInput component.
  */
 interface FloatingLabelInputProps
-	extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {
+	extends Omit<
+		React.InputHTMLAttributes<HTMLInputElement>,
+		"type" | "onChange"
+	> {
 	type?: InputType;
 	label: string;
 	name: string;
 	wrapperClassName?: string;
 	error?: FieldError;
-	register?: ReturnType<typeof import("react-hook-form").useForm>["register"];
+	value?: string;
+	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void; // Ensure onChange is typed here
 }
 
 /**
- * An input component with a floating label, integrated with React Hook Form.
+ * An input component with a floating label, designed to be used as a controlled component.
  *
  * The `FloatingLabelInput` component provides an input field with a label that animates to a floating position
- * when the input is focused or contains a value. It integrates seamlessly with React Hook Form for form state management
- * and validation, and is designed to work well even when inputs are distributed across different parts of the UI.
+ * when the input is focused or contains a value. It integrates seamlessly with React Hook Form and Zod for form state management
+ * and validation using the `Controller` component.
  *
  * __Note:__ Do not use this component for date inputs. Use the `FloatingLabelDateInput` component instead.
  * Nor for color inputs; use the `FloatingLabelColorInput` component.
  *
- * ### Features:
- * - **Floating Label**: The label smoothly transitions between its initial position and a floating position.
- * - **Form Integration**: Seamlessly integrates with React Hook Form, TanStack Query, and Yup for form management and validation.
- * - **Accessible**: Properly associates the label with the input for screen readers and assistive technologies.
- * - **Error Handling**: Displays validation errors and associates them with the input for accessibility.
- * - **Flexible Styling**: Accepts additional class names for both the wrapper and the input for easy customization.
- *
- * ### Usage Examples:
+ * ___Usage Examples:___
  *
  * ```jsx
- * import { useForm } from "react-hook-form";
+ * import { useForm, Controller } from "react-hook-form";
+ * import { z } from "zod";
+ * import { zodResolver } from "@hookform/resolvers/zod";
  * import { FloatingLabelInput } from "@/components/FloatingLabelInput";
  *
+ * const FormSchema = z.object({
+ *   email: z.string().email({ message: "Invalid email address." }),
+ * });
+ *
  * const Example = () => {
- *   const { register, handleSubmit, formState: { errors } } = useForm();
+ *   const { control, handleSubmit, formState: { errors } } = useForm({
+ *     resolver: zodResolver(FormSchema),
+ *   });
  *
  *   const onSubmit = (data) => {
  *     // Handle form submission
@@ -57,14 +62,19 @@ interface FloatingLabelInputProps
  *
  *   return (
  *     <form onSubmit={handleSubmit(onSubmit)}>
- *       <FloatingLabelInput
- *         label="Email"
- *         type="email"
- *         id="email-input"
+ *       <Controller
+ *         control={control}
  *         name="email"
- *         register={register}
- *         error={errors.email}
- *         wrapperClassName="mb-4"
+ *         render={({ field, fieldState }) => (
+ *           <FloatingLabelInput
+ *             label="Email"
+ *             type="email"
+ *             error={fieldState.error}
+ *             value={field.value}
+ *             onChange={field.onChange}
+ *             wrapperClassName="mb-4"
+ *           />
+ *         )}
  *       />
  *       <button type="submit">Submit</button>
  *     </form>
@@ -78,9 +88,11 @@ interface FloatingLabelInputProps
  * @param {string} props.label - The label for the input field.
  * @param {string} props.name - The name of the form field (required for form integration).
  * @param {FieldError} [props.error] - The error object from React Hook Form.
- * @param {Function} [props.register] - The register function from React Hook Form.
  * @param {string} [props.wrapperClassName] - Additional class names for the input wrapper.
- * @param {React.InputHTMLAttributes<HTMLInputElement>} [props...rest] - Additional HTML attributes for the input element.
+ * @param {string} [props.className] - Additional class names for the input element.
+ * @param {string} [props.value] - The current value of the input field.
+ * @param {Function} [props.onChange] - Callback function when the input value changes.
+ * @param {string} [props.id] - The id of the input element.
  *
  * @returns {JSX.Element} The rendered FloatingLabelInput component.
  */
@@ -95,7 +107,8 @@ export const FloatingLabelInput = React.memo(
 				className,
 				id,
 				error,
-				register,
+				value = "",
+				onChange,
 				...rest
 			},
 			ref,
@@ -105,33 +118,15 @@ export const FloatingLabelInput = React.memo(
 
 			const [isFocused, setIsFocused] = useState(false);
 
-			const [inputValue, setInputValue] = useState("");
-
-			const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-				setIsFocused(true);
-				rest.onFocus?.(e);
-			};
-
-			const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-				setIsFocused(false);
-				rest.onBlur?.(e);
-			};
-
-			const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-				setInputValue(e.target.value);
-				rest.onChange?.(e);
-			};
-
-			const hasValue =
-				(rest.value !== undefined && rest.value !== "") || inputValue !== "";
+			const hasValue = value !== "";
 
 			return (
 				<div className={cn("relative", wrapperClassName)}>
 					<div className="relative w-full h-max bg-transparent">
 						<Input
-							{...(register ? register(name) : {})}
 							id={inputId}
 							type={type}
+							name={name}
 							className={cn(
 								"peer placeholder-transparent placeholder-shown:placeholder-transparent",
 								{ "border-primary": isFocused },
@@ -141,9 +136,18 @@ export const FloatingLabelInput = React.memo(
 							aria-invalid={error ? "true" : "false"}
 							aria-describedby={error ? `${inputId}-error` : undefined}
 							ref={ref}
-							onFocus={handleFocus}
-							onBlur={handleBlur}
-							onChange={handleChange}
+							onFocus={(e) => {
+								setIsFocused(true);
+								rest.onFocus?.(e);
+							}}
+							onBlur={(e) => {
+								setIsFocused(false);
+								rest.onBlur?.(e);
+							}}
+							value={value}
+							onChange={(e) => {
+								onChange?.(e);
+							}}
 							{...rest}
 						/>
 						<label
