@@ -136,7 +136,7 @@ export const FloatingLabelColorPicker = ({
 							role="combobox"
 							aria-expanded={open}
 							className={cn(
-								"w-full justify-between font-normal peer text-left",
+								"w-full justify-between font-normal peer text-left hover:bg-white",
 								!hasValue && "text-muted-foreground",
 								{ "border-primary": isFocused },
 								{ "border-red-500": error },

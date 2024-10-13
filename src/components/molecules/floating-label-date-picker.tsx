@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/popover";
 import { useFormContext } from "react-hook-form";
 import type { FieldError } from "react-hook-form";
-import { DateRange } from "react-day-picker";
+import type { DateRange } from "react-day-picker";
 
 /**
  * Modes supported by the FloatingLabelDatePicker.
@@ -140,9 +140,8 @@ export const FloatingLabelDatePicker = ({
 			const { from, to } = selectedValue as DateRange;
 			if (from && to) {
 				return `${format(from, "LLL dd, y")} - ${format(to, "LLL dd, y")}`;
-			} else {
-				return from ? format(from, "LLL dd, y") : "";
 			}
+			return from ? format(from, "LLL dd, y") : "";
 		}
 
 		if (mode === "multiple" && Array.isArray(selectedValue)) {
@@ -168,6 +167,7 @@ export const FloatingLabelDatePicker = ({
 					<PopoverTrigger asChild>
 						<Button
 							variant="outline"
+							// biome-ignore lint/a11y/useSemanticElements: <explanation>
 							role="combobox"
 							aria-expanded={open}
 							className={cn(
