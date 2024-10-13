@@ -133,7 +133,7 @@ export const FloatingLabelSelect = ({
 							role="combobox"
 							aria-expanded={open}
 							className={cn(
-								"w-full justify-between peer",
+								"w-full justify-between peer hover:bg-white",
 								{ "border-primary": isFocused },
 								{ "border-red-500": error },
 								className,
@@ -142,23 +142,24 @@ export const FloatingLabelSelect = ({
 							onBlur={() => setIsFocused(false)}
 							{...rest}
 						>
-							{selectedValue
-								? options.find((option) => option.value === selectedValue)
-										?.label
-								: ""}
+							{selectedValue ? (
+								options.find((option) => option.value === selectedValue)?.label
+							) : (
+								<p />
+							)}
 							<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 						</Button>
 					</PopoverTrigger>
-					<PopoverContent className="w-full p-0">
-						<Command>
+					<PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-2">
+						<Command className="w-full">
 							<CommandInput placeholder={`Search ${label}...`} />
 							<CommandList>
 								<CommandEmpty>No {label} found.</CommandEmpty>
 								<CommandGroup>
 									{options.map((option) => (
 										<CommandItem
-											key={option.value}
-											value={option.value}
+											key={option.label}
+											value={option.label}
 											onSelect={(currentValue) => {
 												handleChange(
 													currentValue === selectedValue ? "" : currentValue,
@@ -188,8 +189,8 @@ export const FloatingLabelSelect = ({
 						"absolute left-3 top-[50%] transform -translate-y-1/2 transition-all duration-200 ease-in-out text-zinc-600 pointer-events-none bg-white px-1 leading-[0]",
 						{
 							"text-xs -top-0.5 left-2 font-semibold bg-zinc-100 rounded-md px-1":
-								hasValue || isFocused,
-							"text-sm": !hasValue && !isFocused,
+								hasValue || isFocused || open,
+							"text-sm": !hasValue && !isFocused && !open,
 							"text-red-500": error,
 						},
 					)}
