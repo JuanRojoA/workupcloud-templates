@@ -10,6 +10,7 @@ import {
 import { useFormContext } from "react-hook-form";
 import type { FieldError } from "react-hook-form";
 import { HexColorInput, HexColorPicker } from "react-colorful";
+import { Trash2Icon, XIcon } from "lucide-react";
 
 /**
  * Props for the FloatingLabelColorPicker component.
@@ -209,6 +210,15 @@ export const FloatingLabelColorPicker = ({
 										/>
 									</button>
 								))}
+								<button
+									type="button"
+									aria-label="Clear color"
+									className="flex items-center justify-center rounded-md border border-zinc-200 transition-all duration-200 ease-in-out hover:bg-zinc-100 focus-visible:ring-1 focus-visible:ring-zinc-950 focus-visible:outline-none col-span-3"
+									onClick={() => handleChange("")}
+								>
+									<XIcon className="h-3 w-3" />
+									<span className="text-xs font-normal ml-1">Clear</span>
+								</button>
 							</div>
 							<HexColorInput
 								className="bg-zinc-50 border border-zinc-200 rounded-md px-3 py-2 w-full focus:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950"
