@@ -69,17 +69,17 @@ interface DeleteDialogProps {
  * @component
  *
  * @param {DeleteDialogProps} props - The component props.
- * @param {boolean} props.isOpen - Whether the dialog is open. If true, the dialog will be visible and interactive.
- * @param {() => void} props.onClose - The function to close the dialog. This function will be called when the user closes the dialog, either by clicking outside of it, pressing escape, or pressing the cancel button.
- * @param {() => void} props.onConfirm - The function to confirm the deletion. This function will be called when the user clicks the confirm button.
- * @param {string | React.ReactNode} props.title - The title of the dialog. This can be a string or a React node, and will be displayed at the top of the dialog.
- * @param {string | React.ReactNode} props.description - The description of the dialog. This can be a string or a React node, and will be displayed below the title.
- * @param {string} props.cancelText - The text for the cancel button. This will be displayed on the left side of the dialog footer.
- * @param {string} props.confirmText - The text for the confirm button. This will be displayed on the right side of the dialog footer.
- * @param {React.ReactNode} props.icon - The icon to display in the dialog. This can be a React node, and will be displayed at the top of the dialog.
- * @param {string} props.iconClassName - The class name for the icon. This can be used to customize the appearance of the icon.
- * @param {string} props.contentClassName - The class name for the dialog content. This can be used to customize the appearance of the dialog content.
- * @param {string} props.descriptionClassName - The class name for the description. This can be used to customize the appearance of the description.
+ * @param {boolean} props.isOpen - Whether the dialog is open.
+ * @param {() => void} props.onClose - Callback function to close the dialog.
+ * @param {() => void} props.onConfirm - Callback function to confirm the deletion.
+ * @param {string | React.ReactNode} props.title - The title of the dialog.
+ * @param {string | React.ReactNode} props.description - The description of the dialog.
+ * @param {string} props.cancelText - The text for the cancel button.
+ * @param {string} props.confirmText - The text for the confirm button.
+ * @param {React.ReactNode} props.icon - The icon to display in the dialog.
+ * @param {string} props.iconClassName - The class name for the icon.
+ * @param {string} props.contentClassName - The class name for the dialog content.
+ * @param {string} props.descriptionClassName - The class name for the description.
  * @returns {JSX.Element} - The rendered DeleteDialog component.
  */
 export const DeleteDialog: React.FC<DeleteDialogProps> = React.memo(
