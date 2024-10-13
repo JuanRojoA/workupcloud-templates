@@ -133,7 +133,8 @@ export const FloatingLabelSelect = ({
 							role="combobox"
 							aria-expanded={open}
 							className={cn(
-								"w-full justify-between peer hover:bg-white",
+								"w-full justify-between font-normal peer text-left hover:bg-white",
+								!hasValue && "text-muted-foreground",
 								{ "border-primary": isFocused },
 								{ "border-red-500": error },
 								className,
