@@ -158,8 +158,9 @@ export const FloatingLabelSelect = ({
 								<CommandGroup>
 									{options.map((option) => (
 										<CommandItem
-											key={option.label}
-											value={option.label}
+											keywords={[option.label]}
+											key={option.value}
+											value={option.value}
 											onSelect={(currentValue) => {
 												handleChange(
 													currentValue === selectedValue ? "" : currentValue,
