@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useId } from "react";
+import { useState, useId, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { useFormContext } from "react-hook-form";
 import type { FieldError } from "react-hook-form";
-import { HexColorPicker } from "react-colorful";
+import { HexColorInput, HexColorPicker } from "react-colorful";
 
 /**
  * Props for the FloatingLabelColorPicker component.
@@ -118,6 +118,24 @@ export const FloatingLabelColorPicker = ({
 
 	const hasValue = selectedValue !== "";
 
+	const presetColors = useMemo(() => {
+		return [
+			"#f44336",
+			"#9c27b0",
+			"#673ab7",
+			"#3f51b5",
+			"#2196f3",
+			"#03a9f4",
+			"#009688",
+			"#4caf50",
+			"#8bc34a",
+			"#cddc39",
+			"#ffeb3b",
+			"#ffc107",
+			"#ff5722",
+		];
+	}, []);
+
 	return (
 		<div className={cn("relative", wrapperClassName)}>
 			<div className="relative w-full h-max bg-transparent">
@@ -165,11 +183,42 @@ export const FloatingLabelColorPicker = ({
 						side="bottom"
 						sideOffset={5}
 					>
-						<HexColorPicker
-							color={selectedValue}
-							onChange={handleChange}
-							{...colorPickerProps}
-						/>
+						<div className="flex flex-col gap-2 w-full">
+							<HexColorPicker
+								color={selectedValue}
+								onChange={handleChange}
+								{...colorPickerProps}
+							/>
+							<div className="grid grid-cols-8 gap-2">
+								{presetColors.map((color) => (
+									<button
+										aria-label={`Select ${color}`}
+										key={color}
+										type="button"
+										className={cn(
+											"flex items-center justify-center rounded-md border border-zinc-200 transition-all duration-200 ease-in-out hover:bg-zinc-100 focus-visible:ring-1 focus-visible:ring-zinc-950 focus-visible:outline-none",
+											{
+												"bg-zinc-100": selectedValue === color,
+											},
+										)}
+										onClick={() => handleChange(color)}
+									>
+										<div
+											className="w-full h-4 rounded"
+											style={{ backgroundColor: color }}
+										/>
+									</button>
+								))}
+							</div>
+							<HexColorInput
+								className="bg-zinc-50 border border-zinc-200 rounded-md px-3 py-2 w-full focus:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950"
+								color={selectedValue}
+								onChange={handleChange}
+								placeholder="Type a color"
+								prefixed
+								alpha
+							/>
+						</div>
 					</PopoverContent>
 				</Popover>
 				<label
