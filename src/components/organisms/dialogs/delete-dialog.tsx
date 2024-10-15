@@ -48,7 +48,7 @@ interface DeleteDialogProps {
  * @property {string} [iconClassName] - Optional class name for the icon container.
  * @property {string} [contentClassName] - Optional class name for the dialog content container.
  * @property {string} [descriptionClassName] - Optional class name for the description text.
- * @returns {JSX.Element} - The rendered delete confirmation dialog.
+ * @returns {React.ReactElement} - The rendered delete confirmation dialog.
  *
  * @example
  * // Basic usage
@@ -68,7 +68,7 @@ interface DeleteDialogProps {
  *   description="This will permanently delete the selected item."
  * />
  */
-export const DeleteDialog: React.FC<DeleteDialogProps> = React.memo(
+export const DeleteDialog = React.memo(
 	({
 		 isOpen,
 		 onClose,
@@ -81,7 +81,7 @@ export const DeleteDialog: React.FC<DeleteDialogProps> = React.memo(
 		 iconClassName,
 		 contentClassName,
 		 descriptionClassName,
-	 }) => {
+	 }: DeleteDialogProps): React.ReactElement => {
 		const uniqueId = useId();
 		const dialogTitleId = `${uniqueId}-title`;
 		const dialogDescriptionId = `${uniqueId}-description`;

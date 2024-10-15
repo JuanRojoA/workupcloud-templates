@@ -35,7 +35,7 @@ interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
  *
  * @component
  * @param {BreadcrumbProps} props - The props for the component.
- * @returns {JSX.Element} - The rendered breadcrumb navigation.
+ * @returns {React.ReactElement} - The rendered breadcrumb component.
  *
  * @example
  * // Basic usage
@@ -70,7 +70,7 @@ interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
  *   )}
  * />
  */
-export const Breadcrumb = React.memo((props: BreadcrumbProps) => {
+export const Breadcrumb = React.memo((props: BreadcrumbProps): React.ReactElement => {
 	const {
 		items,
 		homeHref = "/",
