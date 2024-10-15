@@ -1,4 +1,4 @@
-import React, { useId } from "react";
+import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
@@ -7,9 +7,9 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { AlertTriangle } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AlertTriangle } from "lucide-react";
+import React, { useId } from "react";
 
 /**
  * Props for the DeleteDialog component.
@@ -31,71 +31,57 @@ interface DeleteDialogProps {
 /**
  * A confirmation dialog for delete actions.
  *
- * The `DeleteDialog` component provides a modal dialog to confirm a delete operation. It includes a warning icon, title,
- * description, and buttons for canceling or confirming the deletion.
+ * This component provides a modal dialog to confirm a delete operation. It includes a warning icon,
+ * title, description, and buttons for canceling or confirming the deletion.
  *
- * ### Usage Examples:
- *
- * ```jsx
- * import { useState } from "react";
- * import { DeleteDialog } from "@/components/DeleteDialog";
- *
- * const ExampleComponent = () => {
- *   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
- *
- *   const handleDelete = () => {
- *     // Perform delete action
- *     setIsDeleteModalOpen(false);
- *   };
- *
- *   return (
- *     <>
- *       <Button onClick={() => setIsDeleteModalOpen(true)}>Delete Item</Button>
- *       <DeleteDialog
- *         isOpen={isDeleteModalOpen}
- *         onClose={() => setIsDeleteModalOpen(false)}
- *         onConfirm={handleDelete}
- *         title="Delete Confirmation"
- *         description="Are you sure you want to delete this item? This action cannot be undone."
- *         cancelText="No, Cancel"
- *         confirmText="Yes, Delete"
- *         icon={<AlertTriangle className="h-16 w-16 text-red-500" />}
- *       />
- *     </>
- *   );
- * };
- * ```
+ * The component is memoized using `React.memo` to optimize performance by preventing unnecessary re-renders.
  *
  * @component
+ * @property {boolean} isOpen - Whether the dialog is open.
+ * @property {() => void} onClose - Callback function to close the dialog.
+ * @property {() => void} onConfirm - Callback function to execute when the delete action is confirmed.
+ * @property {string | React.ReactNode} [title="Confirm Deletion"] - The title of the dialog.
+ * @property {string | React.ReactNode} [description] - The description of the dialog, explaining the consequences of the delete action.
+ * @property {string} [cancelText="Cancel"] - The text for the cancel button.
+ * @property {string} [confirmText="Delete"] - The text for the confirm button.
+ * @property {React.ReactNode} [icon] - The icon to display in the dialog header.
+ * @property {string} [iconClassName] - Optional class name for the icon container.
+ * @property {string} [contentClassName] - Optional class name for the dialog content container.
+ * @property {string} [descriptionClassName] - Optional class name for the description text.
+ * @returns {JSX.Element} - The rendered delete confirmation dialog.
  *
- * @param {DeleteDialogProps} props - The component props.
- * @param {boolean} props.isOpen - Whether the dialog is open.
- * @param {() => void} props.onClose - Callback function to close the dialog.
- * @param {() => void} props.onConfirm - Callback function to confirm the deletion.
- * @param {string | React.ReactNode} props.title - The title of the dialog.
- * @param {string | React.ReactNode} props.description - The description of the dialog.
- * @param {string} props.cancelText - The text for the cancel button.
- * @param {string} props.confirmText - The text for the confirm button.
- * @param {React.ReactNode} props.icon - The icon to display in the dialog.
- * @param {string} props.iconClassName - The class name for the icon.
- * @param {string} props.contentClassName - The class name for the dialog content.
- * @param {string} props.descriptionClassName - The class name for the description.
- * @returns {JSX.Element} - The rendered DeleteDialog component.
+ * @example
+ * // Basic usage
+ * <DeleteDialog
+ *   isOpen={isDeleteDialogOpen}
+ *   onClose={() => setIsDeleteDialogOpen(false)}
+ *   onConfirm={handleDelete}
+ * />
+ *
+ * @example
+ * // With custom title and description
+ * <DeleteDialog
+ *   isOpen={isDeleteDialogOpen}
+ *   onClose={() => setIsDeleteDialogOpen(false)}
+ *   onConfirm={handleDelete}
+ *   title="Are you sure?"
+ *   description="This will permanently delete the selected item."
+ * />
  */
 export const DeleteDialog: React.FC<DeleteDialogProps> = React.memo(
 	({
-		isOpen,
-		onClose,
-		onConfirm,
-		title = "Confirm Deletion",
-		description = "This action is irreversible and may lead to data loss. Are you sure you want to proceed?",
-		cancelText = "Cancel",
-		confirmText = "Delete",
-		icon = <AlertTriangle className="h-16 w-16 text-red-500" />,
-		iconClassName,
-		contentClassName,
-		descriptionClassName,
-	}) => {
+		 isOpen,
+		 onClose,
+		 onConfirm,
+		 title = "Confirm Deletion",
+		 description = "This action is irreversible and may lead to data loss. Are you sure you want to proceed?",
+		 cancelText = "Cancel",
+		 confirmText = "Delete",
+		 icon = <AlertTriangle className="h-16 w-16 text-red-500" />,
+		 iconClassName,
+		 contentClassName,
+		 descriptionClassName,
+	 }) => {
 		const uniqueId = useId();
 		const dialogTitleId = `${uniqueId}-title`;
 		const dialogDescriptionId = `${uniqueId}-description`;
