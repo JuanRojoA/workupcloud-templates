@@ -1,8 +1,8 @@
-import React from "react";
-import { Home, ChevronRight, Ellipsis } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { TPadding } from "@/types/TailwindPVariants";
 import type { TMargin } from "@/types/TailwindMVariants";
+import type { TPadding } from "@/types/TailwindPVariants";
+import { ChevronRight, Ellipsis, Home } from "lucide-react";
+import React from "react";
 
 /**
  * Represents a single item in the breadcrumb trail.
@@ -28,67 +28,47 @@ interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
 /**
  * A breadcrumb navigation component.
  *
- * The `Breadcrumb` component displays a breadcrumb trail, allowing users to navigate through a website's hierarchy.
- * It supports customization of the home link, separator, and individual item rendering. If more than 3 items are provided,
- * the breadcrumb will automatically truncate the middle items and display an ellipsis (...) to maintain a compact layout.
+ * This component displays a breadcrumb trail that helps users understand their location within a website or application.
+ * It supports customization of the home link, separator, individual item rendering, and truncation behavior.
  *
- * ### Features:
- * - **Customizable Home Link**: Specify the URL for the home breadcrumb item.
- * - **Flexible Separator**: Use any React node as a separator between items.
- * - **Custom Item Rendering**: Provide a custom render function for advanced customization.
- * - **Responsive Truncation**: Automatically truncates middle items when the breadcrumb trail is too long.
- * - **Tailwind Spacing**: Customize padding and margin using Tailwind classes.
- * - **Enhanced Focus and Hover States**: Improved visual feedback for better user experience.
- * - **Click Animation**: Subtle animations to enhance interactivity.
- *
- * ### Usage Examples:
- *
- * ```jsx
- * import { Breadcrumb } from "@/components/Breadcrumb";
- *
- * const Example = () => (
- *   <Breadcrumb
- *     items={[
- *       { label: "Category", href: "/category" },
- *       { label: "Subcategory", href: "/category/subcategory" },
- *       { label: "Product" },
- *     ]}
- *   />
- * );
- * ```
- *
- * ```jsx
- * import { Breadcrumb } from "@/components/Breadcrumb";
- * import { CustomSeparator } from "@/components/CustomSeparator";
- *
- * const Example = () => (
- *   <Breadcrumb
- *     items={[
- *       { label: "Home", href: "/" },
- *       { label: "Library", href: "/library" },
- *       { label: "Data" },
- *       { label: "Reports" },
- *     ]}
- *     separator={<CustomSeparator />}
- *     spacingPadding="py-2"
- *     spacingMargin="my-4"
- *   />
- * );
- * ```
+ * The component is memoized using `React.memo` to optimize performance by preventing unnecessary re-renders.
  *
  * @component
- * @param {BreadcrumbProps} props - Props for configuring the Breadcrumb component.
- * @param {BreadcrumbItem[]} props.items - An array of breadcrumb items to display.
- * @param {string} [props.homeHref="/"] - The URL for the home breadcrumb item.
- * @param {React.ReactNode} [props.separator=<ChevronRight className="h-4 w-4 mx-2" />] - The separator between breadcrumb items.
- * @param {(item: BreadcrumbItem, index: number) => React.ReactNode} [props.renderItem] - A custom render function for breadcrumb items.
- * @param {TPadding} [props.spacingPadding="py-0"] - Tailwind padding classes for spacing.
- * @param {TMargin} [props.spacingMargin="my-3"] - Tailwind margin classes for spacing.
- * @param {React.ReactNode} [props.ellipsis=<Ellipsis className="h-4 w-4 mx-2" />] - The ellipsis to display when truncating breadcrumb items.
- * @param {string} [props.className] - Additional custom class names to apply to the breadcrumb container.
- * @param {React.HTMLAttributes<HTMLElement>} [props...props] - Additional HTML attributes to apply to the breadcrumb container.
+ * @param {BreadcrumbProps} props - The props for the component.
+ * @returns {JSX.Element} - The rendered breadcrumb navigation.
  *
- * @returns {JSX.Element} The rendered Breadcrumb component.
+ * @example
+ * // Basic usage
+ * <Breadcrumb
+ *   items={[
+ *     { label: "Home", href: "/" },
+ *     { label: "Category", href: "/category" },
+ *     { label: "Product" },
+ *   ]}
+ * />
+ *
+ * @example
+ * // With custom separator and ellipsis
+ * <Breadcrumb
+ *   items={[ ... ]}
+ *   separator={<span>/</span>}
+ *   ellipsis={<span>...</span>}
+ * />
+ *
+ * @example
+ * // With custom item rendering
+ * <Breadcrumb
+ *   items={[ ... ]}
+ *   renderItem={(item, index) => (
+ *     <li key={index}>
+ *       {item.href ? (
+ *         <a href={item.href}>{item.label}</a>
+ *       ) : (
+ *         <span>{item.label}</span>
+ *       )}
+ *     </li>
+ *   )}
+ * />
  */
 export const Breadcrumb = React.memo((props: BreadcrumbProps) => {
 	const {
@@ -137,10 +117,8 @@ export const Breadcrumb = React.memo((props: BreadcrumbProps) => {
 					>
 						{item.label}
 					</a>
-				) : (
-					<span className="text-gray-700 font-semibold" aria-current="page">
-						{item.label}
-					</span>
+					) : (
+						<span className="text-gray-700 font-semibold" aria-current="page">{item.label}</span>
 				)}
 			</li>
 		);
