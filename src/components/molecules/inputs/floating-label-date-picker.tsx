@@ -1,18 +1,17 @@
-import type React from "react";
-import { useState, useId } from "react";
-import { cn } from "@/lib/utils.ts";
 import { Button } from "@/components/ui/button.tsx";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar.tsx";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover.tsx";
-import { useFormContext } from "react-hook-form";
-import type { FieldError } from "react-hook-form";
+import { cn } from "@/lib/utils.ts";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import React, { useState, useId } from "react";
 import type { DateRange } from "react-day-picker";
+import { Controller, useFormContext } from "react-hook-form";
+import type { FieldError } from "react-hook-form";
 
 /**
  * Modes supported by the FloatingLabelDatePicker.
@@ -31,7 +30,6 @@ interface FloatingLabelDatePickerProps {
 	error?: FieldError;
 	id?: string;
 	disabled?: boolean;
-	/** Additional props to pass to the Calendar component */
 	calendarProps?: Omit<
 		React.ComponentProps<typeof Calendar>,
 		"mode" | "selected" | "onSelect"
@@ -39,52 +37,11 @@ interface FloatingLabelDatePickerProps {
 }
 
 /**
- * A date picker component with a floating label, integrated with React Hook Form.
+ * A React component for a date picker with a floating label.
  *
- * The `FloatingLabelDatePicker` component provides a date picker field with a label that animates to a floating position
- * when the picker is focused or contains a value. It supports multiple selection modes provided by React DayPicker
- * (e.g., single date, date range, multiple dates) and integrates seamlessly with React Hook Form and Zod for form state management
- * and validation.
- *
- * ### Usage Examples:
- *
- * ```jsx
- * import { useForm, FormProvider } from "react-hook-form";
- * import { z } from "zod";
- * import { zodResolver } from "@hookform/resolvers/zod";
- * import { FloatingLabelDatePicker } from "@/components/FloatingLabelDatePicker";
- *
- * const FormSchema = z.object({
- *   date: z.date({ required_error: "Please select a date." }),
- * });
- *
- * const Example = () => {
- *   const methods = useForm({
- *     resolver: zodResolver(FormSchema),
- *   });
- *
- *   const { handleSubmit, formState: { errors } } = methods;
- *
- *   const onSubmit = (data) => {
- *     // Handle form submission
- *     console.log("Form Data:", data);
- *   };
- *
- *   return (
- *     <FormProvider {...methods}>
- *       <form onSubmit={handleSubmit(onSubmit)}>
- *         <FloatingLabelDatePicker
- *           label="Select Date"
- *           name="date"
- *           error={errors.date}
- *           wrapperClassName="mb-4"
- *         />
- *         <button type="submit">Submit</button>
- *       </form>
- *     </FormProvider>
- *   );
- * };
- * ```
+ * This component provides a user-friendly way to select a date or date range with a floating label that
+ * animates when the input is focused or has a value.
+ * It uses `react-hook-form` for form integration and `react-day-picker` for the calendar functionality.
  *
  * @component
  * @param {FloatingLabelDatePickerProps} props - Props for configuring the FloatingLabelDatePicker component.
@@ -97,10 +54,29 @@ interface FloatingLabelDatePickerProps {
  * @param {string} [props.id] - The id of the date picker component.
  * @param {boolean} [props.disabled] - Whether the date picker is disabled.
  * @param {object} [props.calendarProps] - Additional props to pass to the Calendar component.
+ * @returns {React.ReactElement} The rendered FloatingLabelDatePicker component.
  *
- * @returns {JSX.Element} The rendered FloatingLabelDatePicker component.
+ * @example
+ * // Basic usage
+ * <FloatingLabelDatePicker label="Choose a date" name="date" />
+ *
+ * @example
+ * // Date range picker
+ * <FloatingLabelDatePicker label="Choose a date range" name="dateRange" mode="range" />
+ *
+ * @example
+ * // With custom class names and error message
+ * <FloatingLabelDatePicker
+ *   label="Event Date"
+ *   name="eventDate"
+ *   wrapperClassName="mb-4"
+ *   className="border-2 border-blue-500"
+ *   error={{ message: "Please select a date" }}
+ * />
  */
-export const FloatingLabelDatePicker = ({
+export const FloatingLabelDatePicker: React.FC<
+	FloatingLabelDatePickerProps
+> = ({
 	label,
 	name,
 	mode = "single",
@@ -110,115 +86,124 @@ export const FloatingLabelDatePicker = ({
 	error,
 	disabled = false,
 	calendarProps = {},
-}: FloatingLabelDatePickerProps): JSX.Element => {
+}: FloatingLabelDatePickerProps): React.ReactElement => {
 	const uniqueId = useId();
 	const inputId = id || uniqueId;
 
-	const { register, setValue, watch } = useFormContext();
+	const { control } = useFormContext();
 
 	const [open, setOpen] = useState(false);
 	const [isFocused, setIsFocused] = useState(false);
 
-	// Get the current value from React Hook Form
-	const selectedValue = watch(name);
+	/**
+	 * Formats the selected date value based on the picker mode.
+	 *
+	 * @param {any} value - The selected date value.
+	 * @returns {string} - The formatted date string.
+	 */
+	const formatValue = (value: any): string => {
+		if (!value) return "";
 
-	// Register the hidden input
-	const { ref: _ref, ...inputProps } = register(name);
-
-	const handleSelect = (date: Date | Date[] | DateRange | undefined) => {
-		setValue(name, date, { shouldValidate: true });
-	};
-
-	const formatValue = () => {
-		if (!selectedValue) return "";
-
-		if (mode === "single" && selectedValue instanceof Date) {
-			return format(selectedValue, "PPP");
+		if (mode === "single" && value instanceof Date) {
+			return format(value, "PPP");
 		}
 
-		if (mode === "range" && selectedValue?.from) {
-			const { from, to } = selectedValue as DateRange;
+		if (mode === "range" && value?.from) {
+			const { from, to } = value as DateRange;
 			if (from && to) {
 				return `${format(from, "LLL dd, y")} - ${format(to, "LLL dd, y")}`;
 			}
 			return from ? format(from, "LLL dd, y") : "";
 		}
 
-		if (mode === "multiple" && Array.isArray(selectedValue)) {
-			return selectedValue.map((date) => format(date, "PPP")).join(", ");
+		if (mode === "multiple" && Array.isArray(value)) {
+			return value.map((date: Date) => format(date, "PPP")).join(", ");
 		}
 
 		return "";
 	};
 
-	const hasValue = Boolean(selectedValue);
-
 	return (
 		<div className={cn("relative", wrapperClassName)}>
-			<div className="relative w-full h-max bg-transparent">
-				<input
-					{...inputProps}
-					type="hidden"
-					id={inputId}
-					name={name}
-					value={selectedValue ? JSON.stringify(selectedValue) : ""}
-				/>
-				<Popover open={open} onOpenChange={setOpen}>
-					<PopoverTrigger asChild>
-						<Button
-							variant="outline"
-							// biome-ignore lint/a11y/useSemanticElements: <explanation>
-							role="combobox"
-							aria-expanded={open}
-							className={cn(
-								"w-full justify-between font-normal peer text-left hover:bg-white",
-								!hasValue && "text-muted-foreground",
-								{ "border-primary": isFocused },
-								{ "border-red-500": error },
-								className,
-							)}
-							onFocus={() => setIsFocused(true)}
-							onBlur={() => setIsFocused(false)}
-							disabled={disabled}
-						>
-							{hasValue ? (
-								formatValue()
-							) : (
-								<span className="text-muted-foreground">Pick a date</span>
-							)}
-							<CalendarIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-						</Button>
-					</PopoverTrigger>
-					<PopoverContent
-						className="w-auto p-0"
-						align="start"
-						side="bottom"
-						sideOffset={5}
-					>
-						<Calendar
-							mode={mode}
-							selected={selectedValue}
-							onSelect={handleSelect}
-							initialFocus
-							{...calendarProps}
-						/>
-					</PopoverContent>
-				</Popover>
-				<label
-					htmlFor={inputId}
-					className={cn(
-						"absolute left-3 top-[50%] transform -translate-y-1/2 transition-all duration-200 ease-in-out text-zinc-600 pointer-events-none bg-white px-1 leading-[0]",
-						{
-							"text-xs -top-0.5 left-2 font-semibold bg-zinc-100 rounded-md px-1":
-								hasValue || isFocused || open,
-							"text-sm": !hasValue && !isFocused && !open,
-							"text-red-500": error,
-						},
-					)}
-				>
-					{label}
-				</label>
-			</div>
+			<Controller
+				name={name}
+				control={control}
+				render={({ field: { value, onChange } }) => {
+					const hasValue =
+						mode === "single" && value instanceof Date
+							? true
+							: mode === "range"
+								? !!(value?.from || value?.to)
+								: Array.isArray(value) && value.length > 0;
+
+					return (
+						<>
+							<Popover open={open} onOpenChange={setOpen}>
+								<PopoverTrigger asChild>
+									<Button
+										variant="outline"
+										role="combobox"
+										aria-expanded={open}
+										className={cn(
+											"w-full justify-between font-normal peer text-left hover:bg-white",
+											!hasValue && "text-muted-foreground",
+											{ "border-primary": isFocused },
+											{ "border-red-500": error },
+											className,
+										)}
+										onFocus={() => setIsFocused(true)}
+										onBlur={() => setIsFocused(false)}
+										disabled={disabled}
+									>
+										{hasValue ? (
+											<div className="flex items-center">
+												{mode === "single" && value instanceof Date && (
+													<span>{formatValue(value)}</span>
+												)}
+												{mode === "range" && <span>{formatValue(value)}</span>}
+												{mode === "multiple" && Array.isArray(value) && (
+													<span>{formatValue(value)}</span>
+												)}
+											</div>
+										) : (
+											<span className="text-muted-foreground">Pick a date</span>
+										)}
+										<CalendarIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+									</Button>
+								</PopoverTrigger>
+								<PopoverContent
+									className="w-auto p-0"
+									align="start"
+									side="bottom"
+									sideOffset={5}
+								>
+									<Calendar
+										mode={mode}
+										selected={value}
+										onSelect={onChange}
+										initialFocus
+										{...calendarProps}
+									/>
+								</PopoverContent>
+							</Popover>
+							<label
+								htmlFor={inputId}
+								className={cn(
+									"absolute left-3 top-[50%] transform -translate-y-1/2 transition-all duration-200 ease-in-out text-zinc-600 pointer-events-none bg-white px-1 leading-[0]",
+									{
+										"text-xs -top-0.5 left-2 font-semibold bg-zinc-100 rounded-md px-1":
+											hasValue || isFocused || open,
+										"text-sm": !hasValue && !isFocused && !open,
+										"text-red-500": error,
+									},
+								)}
+							>
+								{label}
+							</label>
+						</>
+					);
+				}}
+			/>
 			{error && (
 				<p
 					id={`${inputId}-error`}
