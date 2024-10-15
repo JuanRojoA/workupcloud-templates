@@ -1,11 +1,11 @@
-import React from "react";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Button, type ButtonProps } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import React from "react";
 
 type TooltipSide = "top" | "right" | "bottom" | "left";
 type TooltipAlign = "start" | "center" | "end";
@@ -18,6 +18,9 @@ type ButtonVariant =
 	| "destructive"
 	| "secondary";
 
+/**
+ * Props for the ActionButton component.
+ */
 interface ActionButtonProps extends ButtonProps {
 	icon: React.ElementType;
 	label: string;
@@ -32,69 +35,31 @@ interface ActionButtonProps extends ButtonProps {
 /**
  * A reusable action button component with an integrated tooltip.
  *
- * The `ActionButton` component renders a button containing an icon and an accessible label.
- * It integrates with the `Tooltip` component to display additional information on hover or focus.
- * This is useful for action items like adding, deleting, editing, or any other icon-based actions
- * that benefit from descriptive tooltips.
+ * This component provides a button with an icon, and a tooltip that displays on hover.
+ * It is designed to be flexible and customizable, allowing you to specify the icon, label,
+ * tooltip content, placement, and styling.
  *
- * ### Features:
- * - **Icon Integration**: Easily include any icon component within the button.
- * - **Accessibility**: The `label` prop ensures that screen readers can describe the button's purpose.
- * - **Customizable Tooltips**: Optionally provide custom tooltip content, position, and alignment.
- * - **Flexible Styling**: Customize size and variant using Shadcn's built-in options.
+ * The component is memoized using `React.memo` to optimize performance by preventing unnecessary re-renders.
  *
- * ### Usage Examples:
+ * @component
+ * @param {ActionButtonProps} props - The props for the component.
+ * @returns {React.ReactElement} - The rendered action button component.
  *
- * ```jsx
- * import { PlusIcon, TrashIcon } from "@/icons";
+ * @example
+ * // Basic usage
+ * <ActionButton icon={PlusIcon} label="Add Item" onClick={addItem} />
  *
- * // Basic usage with default tooltip
- * <ActionButton
- *   icon={PlusIcon}
- *   label="Add Item"
- *   onClick={() => handleAddItem()}
- *   size="default"
- *   variant="outline"
- * />
- *
- * // Custom tooltip content and positioning
+ * @example
+ * // With custom tooltip content and placement
  * <ActionButton
  *   icon={TrashIcon}
  *   label="Delete"
- *   tooltipContent={<p>This will permanently delete the item.</p>}
+ *   tooltipContent={<p>Are you sure you want to delete this?</p>}
  *   tooltipSide="right"
- *   tooltipAlign="start"
- *   onClick={() => handleDeleteItem()}
- *   size="sm"
- *   variant="destructive"
+ *   onClick={deleteItem}
  * />
- *
- * // Icon button with custom styling
- * <ActionButton
- *   icon={SettingsIcon}
- *   label="Settings"
- *   size="icon"
- *   iconClassName="text-blue-500"
- *   onClick={() => openSettings()}
- * />
- * ```
- *
- * @component
- * @param {ActionButtonProps} props - Props for configuring the ActionButton component.
- * @param {React.ElementType} props.icon - The icon component to display inside the button.
- * @param {string} props.label - The accessible label for the button.
- * @param {React.ReactNode} [props.tooltipContent] - The content to display inside the tooltip.
- * @param {TooltipSide} [props.tooltipSide="top"] - The side where the tooltip appears.
- * @param {TooltipAlign} [props.tooltipAlign="center"] - The alignment of the tooltip relative to the side.
- * @param {string} [props.iconClassName] - Additional class names for the icon component.
- * @param {string} [props.className] - Additional class names for the button component.
- * @param {ButtonSize} [props.size="default"] - The size of the button.
- * @param {ButtonVariant} [props.variant="default"] - The variant of the button.
- * @param {ButtonProps} [props.buttonProps] - All other props are passed down to the underlying Button component.
- *
- * @returns {JSX.Element} The rendered ActionButton component.
  */
-export const ActionButton = React.memo((props: ActionButtonProps) => {
+export const ActionButton = React.memo((props: ActionButtonProps): React.ReactElement => {
 	const {
 		icon: Icon,
 		label,
@@ -116,6 +81,7 @@ export const ActionButton = React.memo((props: ActionButtonProps) => {
 	};
 
 	return (
+		// NOTE: This div is used to ensure the tooltip is positioned correctly
 		<div>
 			<Tooltip>
 				<TooltipTrigger asChild>
