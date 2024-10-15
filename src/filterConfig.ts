@@ -25,7 +25,7 @@ export const filterConfig: FilterConfigItem[] = [
 			{ label: "Inactive", value: "inactive" },
 			{ label: "Pending", value: "pending" },
 		],
-		multiple: true, // Allow multiple selections
+		multiple: false, // Allow multiple selections
 	},
 	{
 		type: "date",
@@ -47,9 +47,14 @@ export const filterConfig: FilterConfigItem[] = [
 	},
 	{
 		type: "checkbox",
-		name: "isVerified",
-		label: "Is Verified",
-		defaultValue: false,
+		name: "Hobbies",
+		label: "Hobbies",
+		options: [
+			{ label: "Football", value: "football" },
+			{ label: "Soccer", value: "soccer" },
+			{ label: "Basketball", value: "basketball" },
+			{ label: "Volleyball", value: "volleyball" },
+		],
 	},
 	{
 		type: "radio",
