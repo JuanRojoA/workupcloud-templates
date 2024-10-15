@@ -1,8 +1,7 @@
-import type React from "react";
-import { useState, useId } from "react";
-import { cn } from "@/lib/utils.ts";
 import { Textarea } from "@/components/ui/textarea.tsx";
-import { useFormContext } from "react-hook-form";
+import { cn } from "@/lib/utils.ts";
+import React, { useState, useId } from "react";
+import { Controller, useFormContext } from "react-hook-form";
 import type { FieldError } from "react-hook-form";
 
 /**
@@ -20,53 +19,11 @@ interface FloatingLabelTextareaProps
 }
 
 /**
- * A textarea component with a floating label, integrated with React Hook Form.
+ * A React component for a textarea input with a floating label.
  *
- * The `FloatingLabelTextarea` component provides a textarea field with a label that animates to a floating position
- * when the textarea is focused or contains a value. It integrates seamlessly with React Hook Form and Zod for form state management
- * and validation.
- *
- * ### Usage Examples:
- *
- * ```jsx
- * import React from "react";
- * import { useForm, FormProvider } from "react-hook-form";
- * import { z } from "zod";
- * import { zodResolver } from "@hookform/resolvers/zod";
- * import { FloatingLabelTextarea } from "@/components/FloatingLabelTextarea";
- *
- * const FormSchema = z.object({
- *   message: z.string().min(10, { message: "Message must be at least 10 characters long." }),
- * });
- *
- * const Example = () => {
- *   const methods = useForm({
- *     resolver: zodResolver(FormSchema),
- *   });
- *
- *   const { handleSubmit, formState: { errors } } = methods;
- *
- *   const onSubmit = (data) => {
- *     // Handle form submission
- *     console.log("Form Data:", data);
- *   };
- *
- *   return (
- *     <FormProvider {...methods}>
- *       <form onSubmit={handleSubmit(onSubmit)}>
- *         <FloatingLabelTextarea
- *           label="Your Message"
- *           name="message"
- *           error={errors.message}
- *           wrapperClassName="mb-4"
- *           rows={5}
- *         />
- *         <button type="submit">Submit</button>
- *       </form>
- *     </FormProvider>
- *   );
- * };
- * ```
+ * This component provides a user-friendly textarea input with a floating label that animates
+ * when the input is focused or has a value.
+ * It uses `react-hook-form` for form integration.
  *
  * @component
  * @param {FloatingLabelTextareaProps} props - Props for configuring the FloatingLabelTextarea component.
@@ -77,10 +34,24 @@ interface FloatingLabelTextareaProps
  * @param {string} [props.className] - Additional class names for the textarea element.
  * @param {string} [props.id] - The id of the textarea element.
  * @param {number} [props.rows=4] - Number of visible text lines for the control.
+ * @returns {React.ReactElement} - The rendered floating label textarea component.
  *
- * @returns {JSX.Element} The rendered FloatingLabelTextarea component.
+ * @example
+ * // Basic usage
+ * <FloatingLabelTextarea label="Description" name="description" />
+ *
+ * @example
+ * // With custom class names and error message
+ * <FloatingLabelTextarea
+ *   label="Feedback"
+ *   name="feedback"
+ *   wrapperClassName="mb-4"
+ *   className="border-2 border-blue-500"
+ *   error={{ message: "Please enter your feedback" }}
+ *   rows={6}
+ * />
  */
-export const FloatingLabelTextarea = ({
+export const FloatingLabelTextarea: React.FC<FloatingLabelTextareaProps> = ({
 	label,
 	name,
 	wrapperClassName,
@@ -89,59 +60,68 @@ export const FloatingLabelTextarea = ({
 	error,
 	rows = 4,
 	...rest
-}: FloatingLabelTextareaProps): JSX.Element => {
+}: FloatingLabelTextareaProps): React.ReactElement => {
 	const uniqueId = useId();
 	const inputId = id || uniqueId;
 
-	const { register, watch } = useFormContext();
+	const { control } = useFormContext();
 
 	const [isFocused, setIsFocused] = useState(false);
 
-	const value = watch(name) || "";
-
-	const hasValue = value !== "";
-
 	return (
 		<div className={cn("relative", wrapperClassName)}>
-			<div className="relative w-full h-max bg-transparent">
-				<Textarea
-					{...register(name)}
-					id={inputId}
-					name={name}
-					rows={rows}
-					className={cn(
-						"peer placeholder-transparent resize-none",
-						{ "border-primary": isFocused },
-						{ "border-red-500": error },
-						className,
-					)}
-					aria-invalid={error ? "true" : "false"}
-					aria-describedby={error ? `${inputId}-error` : undefined}
-					onFocus={(e) => {
-						setIsFocused(true);
-						rest.onFocus?.(e);
-					}}
-					onBlur={(e) => {
-						setIsFocused(false);
-						rest.onBlur?.(e);
-					}}
-					{...rest}
-				/>
-				<label
-					htmlFor={inputId}
-					className={cn(
-						"absolute left-3 top-[20px] transform -translate-y-1/2 transition-all duration-200 ease-in-out text-zinc-600 pointer-events-none bg-white px-1",
-						{
-							"text-xs -top-0.5 left-2 font-semibold bg-zinc-100 rounded-md px-1":
-								hasValue || isFocused,
-							"text-sm": !hasValue && !isFocused,
-							"text-red-500": error,
-						},
-					)}
-				>
-					{label}
-				</label>
-			</div>
+			<Controller
+				name={name}
+				control={control}
+				render={({ field: { value, onChange, onBlur } }) => {
+					const hasValue =
+						value !== "" && value !== undefined && value !== null;
+
+					return (
+						<>
+							<Textarea
+								id={inputId}
+								value={value}
+								onChange={onChange}
+								onBlur={(e) => {
+									setIsFocused(false);
+									onBlur();
+									rest.onBlur?.(e);
+								}}
+								onFocus={(e) => {
+									setIsFocused(true);
+									rest.onFocus?.(e);
+								}}
+								rows={rows}
+								className={cn(
+									"peer placeholder-transparent resize-none",
+									{ "border-primary": isFocused },
+									{ "border-red-500": error },
+									className,
+								)}
+								aria-invalid={error ? "true" : "false"}
+								aria-describedby={error ? `${inputId}-error` : undefined}
+								disabled={rest.disabled}
+								{...rest}
+							/>
+							<label
+								htmlFor={inputId}
+								className={cn(
+									"absolute left-3 top-[20px] transform -translate-y-1/2 transition-all duration-200 ease-in-out text-zinc-600 pointer-events-none bg-white px-1",
+									{
+										"text-xs -top-0.5 left-2 font-semibold bg-zinc-100 rounded-md px-1":
+											hasValue || isFocused,
+										"text-sm": !hasValue && !isFocused,
+										"text-red-500": error,
+									},
+								)}
+							>
+								{label}
+							</label>
+						</>
+					);
+				}}
+			/>
 			{error && (
 				<p
 					id={`${inputId}-error`}
