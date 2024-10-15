@@ -1,9 +1,9 @@
-import { useId } from "react";
-import { cn } from "@/lib/utils";
-import { useFormContext } from "react-hook-form";
-import type { FieldError } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/lib/utils";
+import React, { useId } from "react";
+import { Controller, useFormContext } from "react-hook-form";
+import type { FieldError } from "react-hook-form";
 
 /**
  * Represents an option in the radio button group.
@@ -27,58 +27,10 @@ interface RadioButtonInputProps {
 }
 
 /**
- * A radio button group component integrated with React Hook Form.
+ * A React component for rendering a group of radio buttons with integrated form handling.
  *
- * The `RadioButtonInput` component renders a group of radio buttons based on provided options.
- * It integrates seamlessly with React Hook Form and Zod for form state management and validation.
- *
- * ### Usage Example:
- *
- * ```jsx
- * import React from "react";
- * import { useForm, FormProvider } from "react-hook-form";
- * import { z } from "zod";
- * import { zodResolver } from "@hookform/resolvers/zod";
- * import { RadioButtonInput } from "@/components/RadioButtonInput";
- *
- * const FormSchema = z.object({
- *   gender: z.string().nonempty({ message: "Please select a gender." }),
- * });
- *
- * const Example = () => {
- *   const methods = useForm({
- *     resolver: zodResolver(FormSchema),
- *   });
- *
- *   const { handleSubmit, formState: { errors } } = methods;
- *
- *   const onSubmit = (data) => {
- *     // Handle form submission
- *     console.log("Form Data:", data);
- *   };
- *
- *   const genderOptions = [
- *     { label: "Male", value: "male" },
- *     { label: "Female", value: "female" },
- *     { label: "Other", value: "other" },
- *   ];
- *
- *   return (
- *     <FormProvider {...methods}>
- *       <form onSubmit={handleSubmit(onSubmit)}>
- *         <RadioButtonInput
- *           label="Select Your Gender"
- *           name="gender"
- *           options={genderOptions}
- *           error={errors.gender}
- *           wrapperClassName="mb-4"
- *         />
- *         <button type="submit">Submit</button>
- *       </form>
- *     </FormProvider>
- *   );
- * };
- * ```
+ * This component uses `react-hook-form` to manage the form state and validation. It provides a
+ * convenient way to render a group of radio buttons with labels and error messages.
  *
  * @component
  * @param {RadioButtonInputProps} props - Props for configuring the RadioButtonInput component.
@@ -89,48 +41,84 @@ interface RadioButtonInputProps {
  * @param {string} [props.className] - Additional class names for each radio button item.
  * @param {FieldError} [props.error] - The error object from React Hook Form.
  * @param {string} [props.id] - The id of the radio group.
+ * @returns {React.ReactElement} - The rendered radio button group component.
  *
- * @returns {JSX.Element} The rendered RadioButtonInput component.
+ * @example
+ * // Basic usage
+ * <RadioButtonInput
+ *   label="Select your favorite color"
+ *   name="color"
+ *   options={[
+ *     { label: "Red", value: "red" },
+ *     { label: "Green", value: "green" },
+ *     { label: "Blue", value: "blue" },
+ *   ]}
+ * />
+ *
+ * @example
+ * // With custom class names and error message
+ * <RadioButtonInput
+ *   label="Choose your payment method"
+ *   name="paymentMethod"
+ *   options={[ ... ]}
+ *   wrapperClassName="p-4"
+ *   className="border-2 border-blue-500"
+ *   error={{ message: "Please select a payment method" }}
+ * />
  */
-export const RadioButtonInput = ({
-	label,
-	name,
-	options,
-	wrapperClassName,
-	className,
-	id,
-	error,
-}: RadioButtonInputProps) => {
-	const { register, setValue, watch } = useFormContext();
-	const selectedValue = watch(name);
+export const RadioButtonInput: React.FC<RadioButtonInputProps> = ({
+  label,
+  name,
+  options,
+  wrapperClassName,
+  className,
+  id,
+  error,
+}: RadioButtonInputProps): React.ReactElement => {
+	const uniqueId = useId();
+	const groupId = id || uniqueId;
+
+	const { control } = useFormContext();
 
 	return (
 		<div className={cn("flex flex-col", wrapperClassName)}>
 			<span className="mb-2 text-sm font-medium text-zinc-700">{label}</span>
-			<RadioGroup
-				id={id || useId()}
-				{...register(name)}
-				defaultValue={selectedValue}
-				onValueChange={(value) =>
-					setValue(name, value, { shouldValidate: true })
-				}
-			>
-				{options.map((option) => (
-					<div key={option.value} className="flex items-center space-x-2">
-						<RadioGroupItem
-							value={option.value}
-							id={option.value}
-							className={className}
-						/>
-						<Label
-							htmlFor={option.value}
-							className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-						>
-							{option.label}
-						</Label>
-					</div>
-				))}
-			</RadioGroup>
+			<Controller
+				name={name}
+				control={control}
+				render={({ field: { value, onChange, onBlur } }) => (
+					<RadioGroup
+						id={groupId}
+						value={value}
+						onValueChange={(val) => {
+							onChange(val);
+						}}
+						onBlur={onBlur}
+						className={cn("flex flex-col space-y-2", {
+							"border-red-500": error,
+						})}
+					>
+						{options.map((option) => {
+							const optionId = `${groupId}-${option.value}`;
+							return (
+								<div key={option.value} className="flex items-center space-x-2">
+									<RadioGroupItem
+										value={option.value}
+										id={optionId}
+										className={cn("h-4 w-4", className)}
+									/>
+									<Label
+										htmlFor={optionId}
+										className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+									>
+										{option.label}
+									</Label>
+								</div>
+							);
+						})}
+					</RadioGroup>
+				)}
+			/>
 			{error && (
 				<p className="mt-1 text-sm text-red-500" role="alert">
 					{error.message}
@@ -139,3 +127,5 @@ export const RadioButtonInput = ({
 		</div>
 	);
 };
+
+RadioButtonInput.displayName = "RadioButtonInput";
