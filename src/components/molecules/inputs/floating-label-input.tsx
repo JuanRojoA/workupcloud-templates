@@ -223,22 +223,7 @@ const FloatingLabelInput = forwardRef<
 					</div>
 				</div>
 			),
-			[
-				inputId,
-				type,
-				isFocused,
-				effectiveError,
-				className,
-				actionButtonOne,
-				actionButtonTwo,
-				handleChange,
-				handleBlur,
-				handleFocus,
-				shouldFloat,
-				label,
-				mergedRef,
-				rest,
-			],
+			[inputId, type, isFocused, effectiveError, className, actionButtonOne, actionButtonTwo, handleChange, handleBlur, handleFocus, shouldFloat, label, mergedRef, rest, width],
 		);
 
 		return (
